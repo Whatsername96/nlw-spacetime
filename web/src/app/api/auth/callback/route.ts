@@ -1,5 +1,4 @@
 import { api } from "@/lib/api";
-import { headers } from "next/dist/client/components/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -7,13 +6,15 @@ export async function GET(request: NextRequest) {
 
 	const code = searchParams.get("code");
 
+	const redirectTo = request.cookies.get("redirectTo")?.value;
+
 	const registerResponse = await api.post("/register", {
 		code,
 	});
 
 	const { token } = registerResponse.data;
 
-	const redirectURL = new URL("/", request.url);
+	const redirectURL = redirectTo ?? new URL("/", request.url);
 
 	const cookieExpiresInSecond = 60 * 60 * 24 * 30;
 
