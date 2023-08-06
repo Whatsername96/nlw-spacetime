@@ -1,8 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { extname, resolve } from "node:path";
 import { FastifyInstance } from "fastify";
-import { z } from "zod";
-import { prisma } from "../lib/prisma";
 import { createWriteStream } from "node:fs";
 import { pipeline } from "node:stream";
 import { promisify } from "node:util";
@@ -16,12 +14,13 @@ export async function uploadRoutes(app: FastifyInstance) {
 				fileSize: 5_242_880, // 5mb
 			},
 		});
+
 		if (!upload) {
 			return reply.status(400).send();
 		}
 
-		const mimeTyperegex = /^(image|video)\/[a-zA-Z]+/;
-		const isValidFileFormat = mimeTyperegex.test(upload.mimetype);
+		const mimeTypeRegex = /^(image|video)\/[a-zA-Z]+/;
+		const isValidFileFormat = mimeTypeRegex.test(upload.mimetype);
 
 		if (!isValidFileFormat) {
 			return reply.status(400).send();
@@ -33,12 +32,14 @@ export async function uploadRoutes(app: FastifyInstance) {
 		const fileName = fileId.concat(extension);
 
 		const writeStream = createWriteStream(
-			resolve(__dirname, "../../uploads", fileName)
+			resolve(__dirname, "..", "..", "uploads", fileName)
 		);
 
 		await pump(upload.file, writeStream);
 
 		const fullUrl = request.protocol.concat("://").concat(request.hostname);
 		const fileUrl = new URL(`/uploads/${fileName}`, fullUrl).toString();
+
+		return { fileUrl };
 	});
 }

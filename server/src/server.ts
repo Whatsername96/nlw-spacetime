@@ -15,7 +15,7 @@ app.register(multipart);
 
 app.register(require("@fastify/static"), {
 	root: resolve(__dirname, "../uploads"),
-	prefix: "uploads",
+	prefix: "/uploads",
 });
 
 app.register(cors, {
@@ -27,12 +27,14 @@ app.register(jwt, {
 });
 
 app.register(authRoutes);
-app.register(memoriesRoutes);
 app.register(uploadRoutes);
+app.register(memoriesRoutes);
+
+const port = Number(process.env.PORT) || 3333;
 
 app.listen({
-	port: 3333,
+	port,
 	host: "0.0.0.0",
 }).then(() => {
-	console.log("HTTP server running on https://localhost:%d", 3333);
+	console.log("🚀 HTTP server running on port http://localhost:%d", port);
 });
